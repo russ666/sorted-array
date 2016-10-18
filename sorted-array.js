@@ -27,6 +27,30 @@ var SortedArray = (function () {
 
             return this;
         },
+        rangeStart: function (element) {
+            var length = this.array.length;
+            if (length == 0) return -1;
+            var index = this.search(element);
+
+            while (index > 0) {
+                if (this.compare(this.array[index], element) < 0) break;
+                index -= 1;
+            }
+
+            return index;
+        },
+        rangeEnd: function (element) {
+            var length = this.array.length;
+            if (length == 0) return -1;
+            var index = this.search(element);
+
+            while (index < length-1) {
+                if (this.compare(this.array[index], element) > 0) break;
+                index += 1;
+            }
+
+            return index;
+        },
         search: function (element) {
             var array   = this.array;
             var compare = this.compare;
@@ -37,12 +61,48 @@ var SortedArray = (function () {
                 var index    = (high + low) / 2 >>> 0;
                 var ordering = compare(array[index], element);
 
-                     if (ordering < 0) low  = index + 1;
-                else if (ordering > 0) high = index;
-                else return index;
+                if (ordering < 0) low = index + 1;
+                    else if (ordering > 0) high = index;
+                    else return index;
             }
 
-            return -1;
+            return index;
+        },
+        range: function (from, to) {
+            var result = [];
+            var length = this.array.length;
+
+            if (length == 0) return result;
+
+            from = (from == null || from == undefined) ? null : from;
+            to = (to == null || to == undefined) ? null : to;
+
+            var fromIndex = from == null ? 0 : this.rangeStart(from);
+            var toIndex = to == null ? length-1 : this.rangeEnd(to);
+
+            if (fromIndex == -1) return result;
+
+            while (fromIndex <= toIndex)
+            {
+                var valid = true;
+                var value = this.array[fromIndex];
+
+                if (from != null)
+                {
+                    valid = this.compare(value, from) >= 0;
+                }
+
+                if (valid && to != null)
+                {
+                    valid = this.compare(value, to) < 0;
+                }
+
+                if (valid) result.push(value);
+
+                fromIndex += 1;
+            }
+
+            return result;
         },
         remove: function (element) {
             var index = this.search(element);
